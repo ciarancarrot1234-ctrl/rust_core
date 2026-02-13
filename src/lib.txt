@@ -1,0 +1,85 @@
+// Liquidity Hunt - HFT Trading Bot for Binance Futures
+// Pure Rust Implementation - No Python/PyO3 Dependencies
+
+//! # Liquidity Hunt
+//!
+//! High-frequency trading system for Binance Futures with real-time market data processing,
+//! event-driven architecture, and comprehensive trade analysis.
+//!
+//! ## Architecture
+//!
+//! The system is organized into layers:
+//!
+//! - **Core**: Foundational types, configuration, logging, and event bus
+//! - **Layer 1**: Data connectors (WebSocket, REST, User Data Stream, Time Sync)
+//! - **Layer 2**: Data processing pipeline (Parser, OrderBook, Synchronizer)
+//! - **Layer 3**: Trade aggregators and event generators (Delta, VWAP, Volume, Patterns)
+//!
+//! ## Example
+//!
+//! ```rust,no_run
+//! use liquidity_hunt::core::setup_logging;
+//! use liquidity_hunt::layer1::WebSocketClient;
+//! use liquidity_hunt::layer2::RustPipeline;
+//!
+//! // Setup logging
+//! setup_logging(Some("INFO"), None, Some(true), Some(true));
+//!
+//! // Create and start pipeline
+//! let pipeline = RustPipeline::new("BTCUSDT", "differential");
+//! pipeline.initialize().unwrap();
+//! pipeline.start("depth@100ms").unwrap();
+//! ```
+
+pub mod core;
+pub mod layer1;
+pub mod layer2;
+pub mod layer3;
+
+// Re-export commonly used items at crate root for convenience
+pub use core::{
+    // Types
+    Trade, BookLevel, Kline, MarkPrice, Liquidation, OrderBookSnapshot,
+    Direction, MarketRegime, VolatilityState, ConnectionStatus,
+    OrderSide, OrderType, TimeInForce, PositionSide,
+    ExchangeInfo, AccountInfo, Position,
+    // Config
+    BinanceConfig, TradingConfig, AggregatorThresholds, StrategyConfig,
+    MonitoringConfig, ConfigManager, ConfigSummary, ConfigError, get_config,
+    // Events
+    Event, EventPriority, EventBus, EventBusStatsSnapshot, get_event_bus,
+    // Logging
+    setup_logging,
+};
+
+pub use layer1::{
+    WebSocketClient, WebSocketMessage, WebSocketStats,
+    BinanceRestClient, RestClientError, RestClientStats, RateLimiter,
+    UserDataStreamManager, UserDataStreamError, UserDataStreamStats,
+    UserDataEvent, OrderUpdate, AccountUpdate, BalanceUpdate, PositionUpdate,
+    TimeSynchronizer, TimeSyncError, TimeSyncStats,
+};
+
+pub use layer2::{
+    OrderBook, OrderBookState, OrderBookMode, OrderBookSummary,
+    OrderBookError, SnapshotData, DiffUpdate,
+    MessageParser, ParsedMessage, ParseError, ParserStats, PriceLevel,
+    ParsedAggTrade, ParsedDepthUpdate, ParsedDepthSnapshot,
+    ParsedKline, ParsedMarkPrice, ParsedLiquidation, ParsedBookTicker,
+    DataSynchronizer, SynchronizedMessage, QualityMetadata, SyncState, SynchronizerStats,
+    RustPipeline, PipelineStats,
+    MarketDataStore, MarketDataStoreStats,
+    UnifiedMetrics,
+};
+
+pub use layer3::{
+    TradeAggregator, TradeAggregatorStats,
+    DeltaTracker, VwapTracker, VolumeTracker,
+    PatternDetector, VolumeProfile, StreakTracker,
+};
+
+/// Crate version
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+
+/// Crate name
+pub const CRATE_NAME: &str = env!("CARGO_PKG_NAME");
